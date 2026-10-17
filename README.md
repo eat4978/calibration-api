@@ -31,7 +31,7 @@ flask --app app seed-db
 flask --app app run
 ```
 
-The server starts at `http://127.0.0.1:5000`.
+The server starts at `http://127.0.0.1:5000` and runs in the foreground. **Leave this terminal open** — open a second terminal to run the curl commands in the API Reference section below.
 
 ---
 
@@ -42,7 +42,7 @@ The server starts at `http://127.0.0.1:5000`.
 `POST /calibrations`
 
 ```bash
-curl -s -X POST http://localhost:5000/calibrations \
+curl -s -X POST http://127.0.0.1:5000/calibrations \
   -H "Content-Type: application/json" \
   -d '{"calibration_type": "offset", "value": 1.0, "username": "alice"}' | python3 -m json.tool
 ```
@@ -67,7 +67,7 @@ curl -s -X POST http://localhost:5000/calibrations \
 The tag is created automatically if it does not already exist.
 
 ```bash
-curl -s -X POST http://localhost:5000/calibrations/1/tags \
+curl -s -X POST http://127.0.0.1:5000/calibrations/1/tags \
   -H "Content-Type: application/json" \
   -d '{"tag": "production"}' | python3 -m json.tool
 ```
@@ -90,7 +90,7 @@ Returns **409** if the calibration is already actively in that tag.
 `DELETE /calibrations/<id>/tags/<tag_name>`
 
 ```bash
-curl -s -X DELETE http://localhost:5000/calibrations/1/tags/production
+curl -s -X DELETE http://127.0.0.1:5000/calibrations/1/tags/production
 ```
 
 **Response:** `204 No Content`
@@ -115,16 +115,16 @@ All query parameters are optional and combine with AND logic.
 
 ```bash
 # All calibrations by alice of type "offset"
-curl -s "http://localhost:5000/calibrations?user=alice&type=offset" | python3 -m json.tool
+curl -s "http://127.0.0.1:5000/calibrations?user=alice&type=offset" | python3 -m json.tool
 
 # All calibrations currently in the "production" tag
-curl -s "http://localhost:5000/calibrations?tag=production" | python3 -m json.tool
+curl -s "http://127.0.0.1:5000/calibrations?tag=production" | python3 -m json.tool
 
 # Calibrations created within a time range
-curl -s "http://localhost:5000/calibrations?start=2026-01-01T00:00:00%2B00:00&end=2026-12-31T23:59:59%2B00:00" | python3 -m json.tool
+curl -s "http://127.0.0.1:5000/calibrations?start=2026-01-01T00:00:00%2B00:00&end=2026-12-31T23:59:59%2B00:00" | python3 -m json.tool
 
 # No filters — return everything
-curl -s "http://localhost:5000/calibrations" | python3 -m json.tool
+curl -s "http://127.0.0.1:5000/calibrations" | python3 -m json.tool
 ```
 
 **Response (200):** Array of calibration objects, ordered by timestamp descending.
@@ -138,7 +138,7 @@ curl -s "http://localhost:5000/calibrations" | python3 -m json.tool
 Returns all tag associations — both active (`time_removed: null`) and historical.
 
 ```bash
-curl -s http://localhost:5000/calibrations/1/tags | python3 -m json.tool
+curl -s http://127.0.0.1:5000/calibrations/1/tags | python3 -m json.tool
 ```
 
 **Response (200)**
