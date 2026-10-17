@@ -39,11 +39,11 @@ def index():
     return jsonify({
         "service": "Calibration API",
         "endpoints": [
-            {"method": "POST",   "path": "/calibrations",                        "description": "Create a calibration"},
-            {"method": "GET",    "path": "/calibrations",                        "description": "List/filter calibrations (params: user, type, tag, start, end)"},
-            {"method": "POST",   "path": "/calibrations/<id>/tags",              "description": "Add a calibration to a tag"},
-            {"method": "DELETE", "path": "/calibrations/<id>/tags/<tag_name>",   "description": "Remove a calibration from a tag"},
-            {"method": "GET",    "path": "/calibrations/<id>/tags",              "description": "List tags for a calibration"},
+            {"method": "POST",   "path": "/calibrations",                          "description": "Create a calibration"},
+            {"method": "GET",    "path": "/calibrations",                          "description": "List/filter calibrations (params: user, type, tag, start, end)"},
+            {"method": "POST",   "path": "/calibrations/{id}/tags",                "description": "Add a calibration to a tag"},
+            {"method": "DELETE", "path": "/calibrations/{id}/tags/{tag_name}",     "description": "Remove a calibration from a tag"},
+            {"method": "GET",    "path": "/calibrations/{id}/tags",                "description": "List tags for a calibration"},
         ],
     }), 200
 
