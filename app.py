@@ -33,6 +33,21 @@ def seed_db_command():
 # Routes
 # ---------------------------------------------------------------------------
 
+@app.route("/")
+def index():
+    """API overview."""
+    return jsonify({
+        "service": "Calibration API",
+        "endpoints": [
+            {"method": "POST",   "path": "/calibrations",                        "description": "Create a calibration"},
+            {"method": "GET",    "path": "/calibrations",                        "description": "List/filter calibrations (params: user, type, tag, start, end)"},
+            {"method": "POST",   "path": "/calibrations/<id>/tags",              "description": "Add a calibration to a tag"},
+            {"method": "DELETE", "path": "/calibrations/<id>/tags/<tag_name>",   "description": "Remove a calibration from a tag"},
+            {"method": "GET",    "path": "/calibrations/<id>/tags",              "description": "List tags for a calibration"},
+        ],
+    }), 200
+
+
 @app.route("/calibrations", methods=["POST"])
 def create_calibration():
     """Create a new calibration."""
