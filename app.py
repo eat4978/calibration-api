@@ -127,10 +127,11 @@ def list_calibrations():
                      "(e.g. 2026-01-01 or 2026-01-01T09:30:00+00:00)"
         }), 400
 
+    tag = request.args.get("tag")
     results = db.get_calibrations(
         user=request.args.get("user"),
         cal_type=request.args.get("type"),
-        tag=request.args.get("tag"),
+        tag=tag.lower() if tag else None,
         start=start,
         end=end,
     )
@@ -144,7 +145,9 @@ def add_to_tag(cal_id):
     tag = body.get("tag")
     if not _is_nonempty_string(tag):
         return jsonify({"error": "'tag' is required and must be a non-empty string"}), 400
-    tag_name = tag.strip()
+    tag_name = tag.strip().lower()
+    if "/" in tag_name:
+        return jsonify({"error": "'tag' must not contain '/'"}), 400
 
     result, error = db.add_to_tag(cal_id, tag_name)
     if error == "calibration_not_found":
@@ -158,7 +161,8 @@ def add_to_tag(cal_id):
 @app.route("/calibrations/<int:cal_id>/tags/<tag_name>", methods=["DELETE"])
 def remove_from_tag(cal_id, tag_name):
     """Remove a calibration from a tag."""
-    success, error = db.remove_from_tag(cal_id, tag_name)
+    # Match the normalization applied when the tag was added.
+    success, error = db.remove_from_tag(cal_id, tag_name.strip().lower())
     if error == "not_found":
         return jsonify({"error": f"Calibration {cal_id} is not currently in tag '{tag_name}'"}), 404
 

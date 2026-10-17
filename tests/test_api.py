@@ -179,6 +179,38 @@ class TestRemoveFromTag:
         resp = client.post(f"/calibrations/{cal['id']}/tags", json={"tag": "cycle"})
         assert resp.status_code == 201
 
+    def test_tag_with_slash_is_rejected(self, client):
+        """Slashes are disallowed in tag names: they cannot be expressed in the
+        DELETE route path, so we reject them at creation rather than let a tag
+        become un-removable."""
+        cal = make_calibration(client)
+        resp = client.post(f"/calibrations/{cal['id']}/tags", json={"tag": "a/b/c"})
+        assert resp.status_code == 400
+
+    def test_tag_is_stored_lowercase(self, client):
+        cal = make_calibration(client)
+        resp = client.post(f"/calibrations/{cal['id']}/tags", json={"tag": "Production"})
+        assert resp.get_json()["tag"] == "production"
+        tags = client.get(f"/calibrations/{cal['id']}/tags").get_json()
+        assert tags[0]["name"] == "production"
+
+    def test_tag_matching_is_case_insensitive(self, client):
+        """Adding, filtering, and removing all normalize case, so a tag added as
+        'Prod' is the same tag as 'prod'."""
+        cal = make_calibration(client)
+        client.post(f"/calibrations/{cal['id']}/tags", json={"tag": "Prod"})
+
+        # Duplicate in different case is rejected (same tag).
+        dup = client.post(f"/calibrations/{cal['id']}/tags", json={"tag": "PROD"})
+        assert dup.status_code == 409
+
+        # Filtering by any case finds it.
+        found = client.get("/calibrations?tag=pRoD").get_json()
+        assert any(c["id"] == cal["id"] for c in found)
+
+        # Removing by any case works.
+        assert client.delete(f"/calibrations/{cal['id']}/tags/PrOd").status_code == 204
+
     def test_history_preserved_after_readd(self, client):
         cal = make_calibration(client)
         client.post(f"/calibrations/{cal['id']}/tags", json={"tag": "cycle"})

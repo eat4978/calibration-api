@@ -178,6 +178,18 @@ Run `python client.py --help` or `python client.py <command> --help` for full us
 
 The five endpoints correspond directly to the five use cases above. For day-to-day use, prefer `client.py`. These raw HTTP examples are provided for integration and debugging purposes.
 
+### Input requirements
+
+| Field | Requirement |
+|-------|-------------|
+| `calibration_type` | Non-empty string |
+| `value` | Finite number (rejects `NaN`, `Infinity`, booleans) |
+| `username` | Non-empty string |
+| `tag` | Non-empty string; may not contain `/`. Normalized to lowercase, so tags are case-insensitive. |
+| `start` / `end` | ISO 8601 timestamp (see filter notes below) |
+
+Invalid input returns a `400` with a descriptive message.
+
 ### 1. Create a calibration
 
 `POST /calibrations`
