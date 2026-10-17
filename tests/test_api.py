@@ -60,6 +60,42 @@ class TestCreateCalibration:
         b = make_calibration(client)
         assert a["id"] != b["id"]
 
+    def test_nan_value_returns_400(self, client):
+        resp = client.post("/calibrations", json={
+            "calibration_type": "offset", "value": float("nan"), "username": "a",
+        })
+        assert resp.status_code == 400
+
+    def test_infinity_value_returns_400(self, client):
+        resp = client.post("/calibrations", json={
+            "calibration_type": "offset", "value": float("inf"), "username": "a",
+        })
+        assert resp.status_code == 400
+
+    def test_boolean_value_returns_400(self, client):
+        resp = client.post("/calibrations", json={
+            "calibration_type": "offset", "value": True, "username": "a",
+        })
+        assert resp.status_code == 400
+
+    def test_non_string_type_returns_400(self, client):
+        resp = client.post("/calibrations", json={
+            "calibration_type": 123, "value": 1.0, "username": "a",
+        })
+        assert resp.status_code == 400
+
+    def test_non_string_username_returns_400(self, client):
+        resp = client.post("/calibrations", json={
+            "calibration_type": "offset", "value": 1.0, "username": ["a"],
+        })
+        assert resp.status_code == 400
+
+    def test_empty_string_fields_return_400(self, client):
+        resp = client.post("/calibrations", json={
+            "calibration_type": "", "value": 1.0, "username": "",
+        })
+        assert resp.status_code == 400
+
 
 # ---------------------------------------------------------------------------
 # 2. Add a calibration to a tag
@@ -95,6 +131,21 @@ class TestAddToTag:
         cal = make_calibration(client)
         resp = client.post(f"/calibrations/{cal['id']}/tags", json={})
         assert resp.status_code == 400
+
+    def test_non_string_tag_returns_400(self, client):
+        cal = make_calibration(client)
+        resp = client.post(f"/calibrations/{cal['id']}/tags", json={"tag": 123})
+        assert resp.status_code == 400
+
+    def test_whitespace_only_tag_returns_400(self, client):
+        cal = make_calibration(client)
+        resp = client.post(f"/calibrations/{cal['id']}/tags", json={"tag": "   "})
+        assert resp.status_code == 400
+
+    def test_out_of_range_calibration_id_returns_404(self, client):
+        # Larger than SQLite's signed-64-bit max; must not 500.
+        resp = client.post("/calibrations/99999999999999999999999/tags", json={"tag": "x"})
+        assert resp.status_code == 404
 
 
 # ---------------------------------------------------------------------------
@@ -240,6 +291,10 @@ class TestGetTagsForCalibration:
 
     def test_nonexistent_calibration_returns_404(self, client):
         resp = client.get("/calibrations/9999/tags")
+        assert resp.status_code == 404
+
+    def test_out_of_range_calibration_id_returns_404(self, client):
+        resp = client.get("/calibrations/99999999999999999999999/tags")
         assert resp.status_code == 404
 
 

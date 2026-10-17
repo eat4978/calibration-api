@@ -5,6 +5,15 @@ from datetime import datetime, timezone
 
 DATABASE = "calibrations.db"
 
+# SQLite stores integers as signed 64-bit; anything outside this range cannot
+# be a valid row id, so binding it would raise OverflowError.
+SQLITE_INT_MIN = -(2 ** 63)
+SQLITE_INT_MAX = 2 ** 63 - 1
+
+
+def _is_valid_id(cal_id):
+    return SQLITE_INT_MIN <= cal_id <= SQLITE_INT_MAX
+
 
 def _now():
     """Current time as a UTC ISO 8601 string (second precision)."""
@@ -152,6 +161,9 @@ def add_to_tag(cal_id, tag_name):
     Returns (result_dict, error_str) where error_str is None on success.
     Errors: "calibration_not_found", "already_in_tag"
     """
+    if not _is_valid_id(cal_id):
+        return None, "calibration_not_found"
+
     now = _now()
     with get_db() as conn:
         if not conn.execute("SELECT 1 FROM calibrations WHERE id = ?", (cal_id,)).fetchone():
@@ -186,6 +198,9 @@ def remove_from_tag(cal_id, tag_name):
     Returns (success_bool, error_str).
     Errors: "not_found" (tag doesn't exist or calibration is not currently in it)
     """
+    if not _is_valid_id(cal_id):
+        return False, "not_found"
+
     now = _now()
     with get_db() as conn:
         tag_row = conn.execute("SELECT id FROM tags WHERE name = ?", (tag_name,)).fetchone()
@@ -208,6 +223,9 @@ def get_tags_for_calibration(cal_id):
     Return all tag associations (active and historical) for a calibration.
     Returns None if the calibration does not exist.
     """
+    if not _is_valid_id(cal_id):
+        return None
+
     with get_db() as conn:
         if not conn.execute("SELECT 1 FROM calibrations WHERE id = ?", (cal_id,)).fetchone():
             return None

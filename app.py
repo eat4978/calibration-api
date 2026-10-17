@@ -1,11 +1,41 @@
 import json
+import math
 import os
 
 from flask import Flask, jsonify, request
+from werkzeug.exceptions import HTTPException
 
 import database as db
 
 app = Flask(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Validation helpers
+# ---------------------------------------------------------------------------
+
+def _is_nonempty_string(value):
+    return isinstance(value, str) and value.strip() != ""
+
+
+def _is_finite_number(value):
+    # bool is a subclass of int, so exclude it explicitly: True is not a value.
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    return math.isfinite(value)
+
+
+@app.errorhandler(Exception)
+def handle_unexpected(e):
+    """
+    Backstop so the API never leaks an HTML stack trace: any unhandled
+    exception becomes a clean JSON 500. Flask's own HTTP errors (404, 405,
+    etc.) are passed through unchanged.
+    """
+    if isinstance(e, HTTPException):
+        return e
+    app.logger.exception("Unhandled error")
+    return jsonify({"error": "Internal server error"}), 500
 
 
 # ---------------------------------------------------------------------------
@@ -56,8 +86,12 @@ def create_calibration():
     if missing:
         return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
 
-    if not isinstance(body["value"], (int, float)):
-        return jsonify({"error": "'value' must be a number"}), 400
+    if not _is_nonempty_string(body["calibration_type"]):
+        return jsonify({"error": "'calibration_type' must be a non-empty string"}), 400
+    if not _is_nonempty_string(body["username"]):
+        return jsonify({"error": "'username' must be a non-empty string"}), 400
+    if not _is_finite_number(body["value"]):
+        return jsonify({"error": "'value' must be a finite number"}), 400
 
     result = db.create_calibration(
         calibration_type=body["calibration_type"],
@@ -107,9 +141,10 @@ def list_calibrations():
 def add_to_tag(cal_id):
     """Add a calibration to a tag (tag is created if it does not exist)."""
     body = request.get_json(silent=True) or {}
-    tag_name = body.get("tag", "").strip()
-    if not tag_name:
+    tag = body.get("tag")
+    if not _is_nonempty_string(tag):
         return jsonify({"error": "'tag' is required and must be a non-empty string"}), 400
+    tag_name = tag.strip()
 
     result, error = db.add_to_tag(cal_id, tag_name)
     if error == "calibration_not_found":
