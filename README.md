@@ -1,6 +1,32 @@
 # Calibration API
 
-A simple REST API for managing hardware device calibrations. Built with Python, Flask, and SQLite.
+A REST API for managing hardware device calibrations. Built with Python, Flask, and SQLite.
+
+---
+
+## Overview
+
+A **calibration** records a measurement made by a named user at a point in time. Each one has four fields:
+
+| Field | Description |
+|-------|-------------|
+| `calibration_type` | What was measured (e.g. `offset`, `gain`, `temperature`) |
+| `value` | The numeric result |
+| `username` | Who performed the calibration |
+| `timestamp` | When it was recorded (set automatically, stored in UTC) |
+
+**Tags** are short labels that group calibrations into named states of a device (e.g. `production`, `baseline-2026-q1`). A calibration can belong to any number of tags at once.
+
+**Tag membership is tracked over time.** When you add a calibration to a tag, the association is recorded with a timestamp. When you remove it, the removal is recorded too — the association is never deleted. This means you can always inspect the full history of which calibrations belonged to a tag, and when. Querying a tag by default returns only its *current* members (those not yet removed).
+
+The API exposes five operations:
+1. Create a calibration
+2. Add a calibration to a tag (tag is created automatically if new)
+3. Remove a calibration from a tag (history is preserved)
+4. List calibrations, with optional filters by user, type, tag, and time window
+5. Retrieve the full tag history for a calibration
+
+For day-to-day use, interact via the `client.py` command-line tool. Raw HTTP examples are in the [API Reference](#api-reference).
 
 ---
 
@@ -31,9 +57,10 @@ flask --app app init-db && flask --app app seed-db
 flask --app app run
 ```
 
-In a **second terminal**, verify everything is working:
+In a **second terminal**, activate the same environment and verify everything is working:
 
 ```bash
+source venv/bin/activate
 python client.py list
 ```
 
@@ -164,6 +191,7 @@ python client.py list
 python client.py list --user alice
 python client.py list --type offset --user alice
 python client.py list --tag production
+
 python client.py list --start 2026-01-01 --end 2026-12-31
 
 # Show all tag associations for calibration 1 (active and historical)
