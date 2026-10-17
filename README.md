@@ -9,8 +9,8 @@ A simple REST API for managing hardware device calibrations. Built with Python, 
 - [Quick Start](#quick-start)
 - [Setup](#setup)
 - [Running](#running)
-- [Command-line Client](#command-line-client)
 - [How to Test That This Repository Works](#how-to-test-that-this-repository-works)
+- [Command-line Client](#command-line-client)
 - [API Reference](#api-reference)
 - [Database Schema](#database-schema)
 - [Troubleshooting](#troubleshooting)
@@ -66,36 +66,7 @@ flask --app app seed-db
 flask --app app run
 ```
 
-The server starts at `http://127.0.0.1:5000` and runs in the foreground. **Leave this terminal open** — open a second terminal to interact with the API using the client below.
-
----
-
-## Command-line Client
-
-`client.py` provides a simple interface to every endpoint — no curl required.
-
-```bash
-# Create a calibration
-python client.py create --type offset --value 1.0 --user alice
-
-# Add calibration 1 to a tag (tag is created if it does not exist)
-python client.py add 1 production
-
-# Remove calibration 1 from a tag
-python client.py remove 1 production
-
-# List calibrations — all filters are optional and combine with AND logic
-python client.py list
-python client.py list --user alice
-python client.py list --type offset --user alice
-python client.py list --tag production
-python client.py list --start 2026-01-01 --end 2026-12-31
-
-# Show all tag associations for calibration 1 (active and historical)
-python client.py tags 1
-```
-
-Run `python client.py --help` or `python client.py <command> --help` for full usage.
+The server starts at `http://127.0.0.1:5000` and runs in the foreground. **Leave this terminal open** — open a second terminal to interact with the API.
 
 ---
 
@@ -142,8 +113,6 @@ python client.py remove 1 production
 
 Expected: `Removed calibration 1 from tag 'production'.`
 
-Verify the removal is recorded but not erased by checking the tag history (Step 5 below).
-
 ### Step 4 — Filter calibrations
 
 ```bash
@@ -174,7 +143,40 @@ Expected: a list with at least two entries for `production` — one with `time_r
 
 ---
 
-## API Reference
+<details>
+<summary><strong>Command-line Client</strong></summary>
+
+`client.py` provides a simple interface to every endpoint — no curl required.
+
+```bash
+# Create a calibration
+python client.py create --type offset --value 1.0 --user alice
+
+# Add calibration 1 to a tag (tag is created if it does not exist)
+python client.py add 1 production
+
+# Remove calibration 1 from a tag
+python client.py remove 1 production
+
+# List calibrations — all filters are optional and combine with AND logic
+python client.py list
+python client.py list --user alice
+python client.py list --type offset --user alice
+python client.py list --tag production
+python client.py list --start 2026-01-01 --end 2026-12-31
+
+# Show all tag associations for calibration 1 (active and historical)
+python client.py tags 1
+```
+
+Run `python client.py --help` or `python client.py <command> --help` for full usage.
+
+</details>
+
+---
+
+<details>
+<summary><strong>API Reference</strong></summary>
 
 The five endpoints correspond directly to the five use cases above. For day-to-day use, prefer `client.py`. These raw HTTP examples are provided for integration and debugging purposes.
 
@@ -251,9 +253,12 @@ Returns all tag associations — both active (`time_removed: null`) and historic
 curl -s http://127.0.0.1:5000/calibrations/1/tags | python3 -m json.tool
 ```
 
+</details>
+
 ---
 
-## Database Schema
+<details>
+<summary><strong>Database Schema</strong></summary>
 
 ```
 calibrations
@@ -277,9 +282,12 @@ tags_calibrations
 
 Tag membership history is preserved via `time_added` / `time_removed` on `tags_calibrations`, so the state of any tag at any past point in time can be reconstructed.
 
+</details>
+
 ---
 
-## Troubleshooting
+<details>
+<summary><strong>Troubleshooting</strong></summary>
 
 **Quick questions:** Open a discussion in the **Q&A** category under the Discussions tab.
 
@@ -293,17 +301,22 @@ Tag membership history is preserved via `time_added` / `time_removed` on `tags_c
 | Symptom | Fix |
 |--------|-----|
 | `Could not reach the server` | Start the server first: `flask --app app run` |
-| `Could not reach the server` (server is running) | Use `127.0.0.1` instead of `localhost` — see [macOS note](#running) |
+| `Could not reach the server` (server is running) | Use `127.0.0.1` instead of `localhost` — common on macOS |
 | `No module named 'flask'` | Activate the virtual environment: `source venv/bin/activate` |
 | `sqlite3.OperationalError: no such table` | Run `flask --app app init-db` |
 
+</details>
+
 ---
 
-## Feature Requests
+<details>
+<summary><strong>Feature Requests</strong></summary>
 
-Feature requests are tracked via [GitHub Discussions](../../discussions) — this keeps the issue tracker focused on bugs while giving ideas room to breathe, gather feedback, and be voted on.
+Feature requests are tracked via GitHub Discussions — this keeps the issue tracker focused on bugs while giving ideas room to breathe, gather feedback, and be voted on.
 
 To suggest a feature:
 1. Go to the **Discussions** tab.
 2. Click **New discussion** and choose the **Ideas** category.
 3. Describe what you need and why — the more context, the better.
+
+</details>
