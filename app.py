@@ -78,13 +78,27 @@ def list_calibrations():
       tag    – filter by currently-active tag
       start  – ISO 8601 timestamp; return calibrations at or after this time
       end    – ISO 8601 timestamp; return calibrations at or before this time
+
+    Timestamps may be given in any timezone (or none, in which case UTC is
+    assumed); they are normalized to UTC before filtering.
     """
+    try:
+        start = request.args.get("start")
+        start = db.parse_timestamp(start) if start else None
+        end = request.args.get("end")
+        end = db.parse_timestamp(end) if end else None
+    except ValueError:
+        return jsonify({
+            "error": "'start' and 'end' must be ISO 8601 timestamps "
+                     "(e.g. 2026-01-01 or 2026-01-01T09:30:00+00:00)"
+        }), 400
+
     results = db.get_calibrations(
         user=request.args.get("user"),
         cal_type=request.args.get("type"),
         tag=request.args.get("tag"),
-        start=request.args.get("start"),
-        end=request.args.get("end"),
+        start=start,
+        end=end,
     )
     return jsonify(results), 200
 

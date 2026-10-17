@@ -194,7 +194,7 @@ curl -s -X POST http://127.0.0.1:5000/calibrations \
   "id": 1,
   "calibration_type": "offset",
   "value": 1.0,
-  "timestamp": "2026-10-17T09:30:00-07:00",
+  "timestamp": "2026-10-17T16:30:00+00:00",
   "username": "alice"
 }
 ```
@@ -235,7 +235,10 @@ curl -s -X DELETE http://127.0.0.1:5000/calibrations/1/tags/production
 | `start`   | ISO 8601 timestamp — return calibrations at or after this time |
 | `end`     | ISO 8601 timestamp — return calibrations at or before this time |
 
-All parameters are optional and combine with AND logic.
+All parameters are optional and combine with AND logic. Timestamps may be given
+in any timezone (e.g. `2026-01-01T09:30:00-05:00`) or with none at all
+(`2026-01-01`, interpreted as UTC); they are normalized to UTC before filtering.
+An unparseable `start`/`end` returns a `400`.
 
 ```bash
 curl -s "http://127.0.0.1:5000/calibrations?user=alice&type=offset" | python3 -m json.tool
@@ -260,7 +263,7 @@ calibrations
   id               INTEGER PRIMARY KEY AUTOINCREMENT
   calibration_type TEXT
   value            REAL
-  timestamp        TEXT  (ISO 8601, Pacific Time)
+  timestamp        TEXT  (ISO 8601, UTC)
   username         TEXT
 
 tags
@@ -271,8 +274,8 @@ tags_calibrations
   id             INTEGER PRIMARY KEY AUTOINCREMENT
   tag_id         INTEGER → tags.id
   calibration_id INTEGER → calibrations.id
-  time_added     TEXT  (ISO 8601, Pacific Time)
-  time_removed   TEXT  (ISO 8601, Pacific Time — NULL if still active)
+  time_added     TEXT  (ISO 8601, UTC)
+  time_removed   TEXT  (ISO 8601, UTC — NULL if still active)
 ```
 
 Tag membership history is preserved via `time_added` / `time_removed` on `tags_calibrations`, so the state of any tag at any past point in time can be reconstructed.

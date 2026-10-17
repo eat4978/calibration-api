@@ -1,15 +1,37 @@
+import re
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
-PT = ZoneInfo("America/Los_Angeles")
+from datetime import datetime, timezone
 
 DATABASE = "calibrations.db"
 
 
 def _now():
-    return datetime.now(PT).replace(microsecond=0).isoformat()
+    """Current time as a UTC ISO 8601 string (second precision)."""
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def parse_timestamp(value):
+    """
+    Normalize a user-supplied ISO 8601 timestamp to a UTC ISO 8601 string so it
+    can be compared lexically against stored (UTC) timestamps.
+
+    Accepts date-only ("2026-01-01"), naive datetimes (assumed UTC), tz-aware
+    datetimes (any offset), and a trailing "Z". Raises ValueError on anything
+    that is not a valid ISO 8601 timestamp.
+    """
+    text = value.strip()
+    # A literal "+" in a URL query string decodes to a space, so a tz offset
+    # like "+00:00" can arrive as " 00:00". Restore it before parsing.
+    text = re.sub(r" (\d{2}:\d{2})$", r"+\1", text)
+    # datetime.fromisoformat() only learned to parse a trailing "Z" in 3.11.
+    if text.endswith(("Z", "z")):
+        text = text[:-1] + "+00:00"
+
+    dt = datetime.fromisoformat(text)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).replace(microsecond=0).isoformat()
 
 
 @contextmanager

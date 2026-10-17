@@ -241,3 +241,48 @@ class TestGetTagsForCalibration:
     def test_nonexistent_calibration_returns_404(self, client):
         resp = client.get("/calibrations/9999/tags")
         assert resp.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# Timestamp / timezone handling in the time filter
+# ---------------------------------------------------------------------------
+
+class TestTimeFilter:
+    def test_timestamps_are_stored_in_utc(self, client):
+        cal = make_calibration(client)
+        assert cal["timestamp"].endswith("+00:00")
+
+    def test_tz_aware_filter_matches_same_instant(self, client):
+        """A filter expressed in a non-UTC offset must compare by instant,
+        not by the raw string, so the equivalent UTC moment still matches."""
+        make_calibration(client)
+        # Far-future in UTC, but written with a +14:00 offset so the naive
+        # string would sort *earlier* than a UTC string. Instant-wise it is
+        # still in the future, so nothing should match.
+        resp = client.get("/calibrations?start=2099-01-01T00:00:00+14:00")
+        assert resp.get_json() == []
+
+        # Far-past expressed with a -12:00 offset: instant is still the past,
+        # everything should match regardless of the lexical offset ordering.
+        resp = client.get("/calibrations?start=2000-01-01T00:00:00-12:00")
+        assert len(resp.get_json()) == 1
+
+    def test_z_suffix_is_accepted(self, client):
+        make_calibration(client)
+        resp = client.get("/calibrations?end=2000-01-01T00:00:00Z")
+        assert resp.status_code == 200
+        assert resp.get_json() == []
+
+    def test_date_only_is_accepted(self, client):
+        make_calibration(client)
+        resp = client.get("/calibrations?start=2000-01-01")
+        assert resp.status_code == 200
+        assert len(resp.get_json()) == 1
+
+    def test_invalid_timestamp_returns_400(self, client):
+        resp = client.get("/calibrations?start=not-a-date")
+        assert resp.status_code == 400
+
+    def test_invalid_end_timestamp_returns_400(self, client):
+        resp = client.get("/calibrations?end=2026-13-99")
+        assert resp.status_code == 400
