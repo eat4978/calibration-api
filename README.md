@@ -281,9 +281,9 @@ Tag membership history is preserved via `time_added` / `time_removed` on `tags_c
 
 ## Troubleshooting
 
-**Quick questions:** Post in [#calibration-api](https://rigetti.slack.com/channels/calibration-api) on Slack.
+**Quick questions:** Open a discussion in the **Q&A** category under the Discussions tab.
 
-**Bug reports:** [Open a GitHub issue](../../issues/new) with:
+**Bug reports:** Open an issue under the Issues tab with:
 - What you ran (exact command)
 - What you expected to happen
 - What actually happened (include any error messages or unexpected output)
@@ -304,6 +304,6 @@ Tag membership history is preserved via `time_added` / `time_removed` on `tags_c
 Feature requests are tracked via [GitHub Discussions](../../discussions) — this keeps the issue tracker focused on bugs while giving ideas room to breathe, gather feedback, and be voted on.
 
 To suggest a feature:
-1. Go to the **Discussions** tab in this repository.
+1. Go to the **Discussions** tab.
 2. Click **New discussion** and choose the **Ideas** category.
 3. Describe what you need and why — the more context, the better.
