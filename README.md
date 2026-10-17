@@ -159,6 +159,35 @@ curl -s http://127.0.0.1:5000/calibrations/1/tags | python3 -m json.tool
 
 ---
 
+## Command-line Client
+
+For a friendlier interface, `client.py` wraps every endpoint as a simple command — no curl required.
+
+```bash
+# Create a calibration
+python client.py create --type offset --value 1.0 --user alice
+
+# Add calibration 1 to a tag
+python client.py add 1 production
+
+# Remove calibration 1 from a tag
+python client.py remove 1 production
+
+# List all calibrations (optional filters)
+python client.py list
+python client.py list --user alice
+python client.py list --type offset --user alice
+python client.py list --tag production
+python client.py list --start 2026-01-01 --end 2026-12-31
+
+# Show tags for calibration 1 (active and historical)
+python client.py tags 1
+```
+
+Run `python client.py --help` or `python client.py <command> --help` for full usage.
+
+---
+
 ## Running Tests
 
 ```bash
