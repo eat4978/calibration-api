@@ -1,12 +1,15 @@
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+PT = ZoneInfo("America/Los_Angeles")
 
 DATABASE = "calibrations.db"
 
 
 def _now():
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(PT).replace(microsecond=0).isoformat()
 
 
 @contextmanager
