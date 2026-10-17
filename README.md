@@ -7,9 +7,9 @@ A simple REST API for managing hardware device calibrations. Built with Python, 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [How to Test That This Repository Works](#how-to-test-that-this-repository-works)
 - [Setup](#setup)
 - [Running](#running)
-- [How to Test That This Repository Works](#how-to-test-that-this-repository-works)
 - [Command-line Client](#command-line-client)
 - [API Reference](#api-reference)
 - [Database Schema](#database-schema)
@@ -19,6 +19,8 @@ A simple REST API for managing hardware device calibrations. Built with Python, 
 ---
 
 ## Quick Start
+
+If you just want to get up and running, these are the only commands you need. For more detail on setup, running, and how the API works, see the sections below.
 
 ```bash
 git clone <your-repo-url>
@@ -35,38 +37,7 @@ In a **second terminal**, verify everything is working:
 python client.py list
 ```
 
-You should see the 15 seeded calibrations. See [How to Test That This Repository Works](#how-to-test-that-this-repository-works) for a full walkthrough.
-
----
-
-## Setup
-
-**Requirements:** Python 3.9+
-
-```bash
-# 1. Create and activate a virtual environment
-python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Initialize the database
-flask --app app init-db
-
-# 4. (Optional) Seed with sample calibration data
-flask --app app seed-db
-```
-
----
-
-## Running
-
-```bash
-flask --app app run
-```
-
-The server starts at `http://127.0.0.1:5000` and runs in the foreground. **Leave this terminal open** — open a second terminal to interact with the API.
+You should see the 15 seeded calibrations.
 
 ---
 
@@ -143,8 +114,38 @@ Expected: a list with at least two entries for `production` — one with `time_r
 
 ---
 
-<details>
-<summary><strong>Command-line Client</strong></summary>
+## Setup
+
+**Requirements:** Python 3.9+
+
+```bash
+# 1. Create and activate a virtual environment
+python3 -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Initialize the database
+flask --app app init-db
+
+# 4. (Optional) Seed with sample calibration data
+flask --app app seed-db
+```
+
+---
+
+## Running
+
+```bash
+flask --app app run
+```
+
+The server starts at `http://127.0.0.1:5000` and runs in the foreground. **Leave this terminal open** — open a second terminal to interact with the API.
+
+---
+
+## Command-line Client
 
 `client.py` provides a simple interface to every endpoint — no curl required.
 
@@ -171,12 +172,9 @@ python client.py tags 1
 
 Run `python client.py --help` or `python client.py <command> --help` for full usage.
 
-</details>
-
 ---
 
-<details>
-<summary><strong>API Reference</strong></summary>
+## API Reference
 
 The five endpoints correspond directly to the five use cases above. For day-to-day use, prefer `client.py`. These raw HTTP examples are provided for integration and debugging purposes.
 
@@ -253,12 +251,9 @@ Returns all tag associations — both active (`time_removed: null`) and historic
 curl -s http://127.0.0.1:5000/calibrations/1/tags | python3 -m json.tool
 ```
 
-</details>
-
 ---
 
-<details>
-<summary><strong>Database Schema</strong></summary>
+## Database Schema
 
 ```
 calibrations
@@ -282,12 +277,9 @@ tags_calibrations
 
 Tag membership history is preserved via `time_added` / `time_removed` on `tags_calibrations`, so the state of any tag at any past point in time can be reconstructed.
 
-</details>
-
 ---
 
-<details>
-<summary><strong>Troubleshooting</strong></summary>
+## Troubleshooting
 
 **Quick questions:** Open a discussion in the **Q&A** category under the Discussions tab.
 
@@ -305,12 +297,9 @@ Tag membership history is preserved via `time_added` / `time_removed` on `tags_c
 | `No module named 'flask'` | Activate the virtual environment: `source venv/bin/activate` |
 | `sqlite3.OperationalError: no such table` | Run `flask --app app init-db` |
 
-</details>
-
 ---
 
-<details>
-<summary><strong>Feature Requests</strong></summary>
+## Feature Requests
 
 Feature requests are tracked via GitHub Discussions — this keeps the issue tracker focused on bugs while giving ideas room to breathe, gather feedback, and be voted on.
 
@@ -318,5 +307,3 @@ To suggest a feature:
 1. Go to the **Discussions** tab.
 2. Click **New discussion** and choose the **Ideas** category.
 3. Describe what you need and why — the more context, the better.
-
-</details>
