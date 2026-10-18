@@ -52,7 +52,7 @@ def init_db_command():
 @app.cli.command("seed-db")
 def seed_db_command():
     """Seed the database with sample calibration data from seed_data.txt."""
-    seed_path = os.path.join(os.path.dirname(__file__), "seed_data.txt")
+    seed_path = os.path.join(os.path.dirname(__file__), "data", "seed_data.txt")
     with open(seed_path) as f:
         records = json.load(f)
     db.seed_db(records)
