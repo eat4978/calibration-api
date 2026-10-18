@@ -65,7 +65,7 @@ source venv/bin/activate
 python client.py list
 ```
 
-You should see the 15 seeded calibrations.
+If the database is seeded, you should 15 calibrations. 
 
 ---
 
@@ -128,8 +128,8 @@ python client.py list --type offset
 python client.py add 1 production   # re-add first
 python client.py list --tag production
 
-# Filter by time range (these should return nothing — dates are in the future)
-python client.py list --start 2099-01-01
+# Filter by time range (update timestamps to see data)
+python client.py list --start 2026-10-18T19:58:56 --end 2026-10-18T19:59:56
 ```
 
 ### Step 5 — Query tags for a calibration

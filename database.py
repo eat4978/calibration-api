@@ -1,7 +1,7 @@
 import re
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 DATABASE = "calibrations.db"
 
@@ -85,11 +85,17 @@ def init_db():
 
 
 def seed_db(records):
-    now = _now()
+    # Space records 10 seconds apart so time-range filtering can be tested.
+    base = datetime.now(timezone.utc).replace(microsecond=0)
     with get_db() as conn:
         conn.executemany(
             "INSERT INTO calibrations (calibration_type, value, timestamp, username) VALUES (?, ?, ?, ?)",
-            [(r["calibration_type"], r["value"], now, r["username"]) for r in records],
+            [
+                (r["calibration_type"], r["value"],
+                 (base + timedelta(seconds=10 * i)).isoformat(),
+                 r["username"])
+                for i, r in enumerate(records)
+            ],
         )
 
 
