@@ -146,8 +146,6 @@ def add_to_tag(cal_id):
     if not _is_nonempty_string(tag):
         return jsonify({"error": "'tag' is required and must be a non-empty string"}), 400
     tag_name = tag.strip().lower()
-    if "/" in tag_name:
-        return jsonify({"error": "'tag' must not contain '/'"}), 400
 
     result, error = db.add_to_tag(cal_id, tag_name)
     if error == "calibration_not_found":
@@ -158,7 +156,7 @@ def add_to_tag(cal_id):
     return jsonify(result), 201
 
 
-@app.route("/calibrations/<int:cal_id>/tags/<tag_name>", methods=["DELETE"])
+@app.route("/calibrations/<int:cal_id>/tags/<path:tag_name>", methods=["DELETE"])
 def remove_from_tag(cal_id, tag_name):
     """Remove a calibration from a tag."""
     # Match the normalization applied when the tag was added.

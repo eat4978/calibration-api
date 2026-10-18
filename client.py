@@ -70,7 +70,7 @@ def cmd_add(args):
 
 
 def cmd_remove(args):
-    tag = urllib.parse.quote(args.tag, safe="")
+    tag = urllib.parse.quote(args.tag, safe="/")
     status, data = _request("DELETE", f"/calibrations/{args.id}/tags/{tag}")
     if status == 204:
         print(f"Removed calibration {args.id} from tag '{args.tag}'.")

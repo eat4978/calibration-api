@@ -179,13 +179,13 @@ class TestRemoveFromTag:
         resp = client.post(f"/calibrations/{cal['id']}/tags", json={"tag": "cycle"})
         assert resp.status_code == 201
 
-    def test_tag_with_slash_is_rejected(self, client):
-        """Slashes are disallowed in tag names: they cannot be expressed in the
-        DELETE route path, so we reject them at creation rather than let a tag
-        become un-removable."""
+    def test_tag_with_slash_round_trips(self, client):
+        """Tags may contain slashes; the DELETE route uses <path:> to match them."""
         cal = make_calibration(client)
-        resp = client.post(f"/calibrations/{cal['id']}/tags", json={"tag": "a/b/c"})
-        assert resp.status_code == 400
+        assert client.post(f"/calibrations/{cal['id']}/tags", json={"tag": "a/b/c"}).status_code == 201
+        assert client.delete(f"/calibrations/{cal['id']}/tags/a/b/c").status_code == 204
+        tags = client.get(f"/calibrations/{cal['id']}/tags").get_json()
+        assert next(t for t in tags if t["name"] == "a/b/c")["time_removed"] is not None
 
     def test_tag_is_stored_lowercase(self, client):
         cal = make_calibration(client)
