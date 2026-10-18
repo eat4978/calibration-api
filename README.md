@@ -53,8 +53,9 @@ git clone <your-repo-url>
 cd calibration-api
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-flask --app app init-db && flask --app app seed-db
-flask --app app run
+python -m flask --app app init-db
+python -m flask --app app seed-db # Optional: adds seed data to database
+python -m flask --app app run
 ```
 
 In a **second terminal**, activate the same environment and verify everything is working:
@@ -70,11 +71,11 @@ You should see the 15 seeded calibrations.
 
 ## How to Test That This Repository Works
 
-This section walks through verifying all five use cases end to end. Make sure the server is running in one terminal (`flask --app app run`) and run the following commands in a second terminal.
+This section walks through verifying all five use cases end to end. Make sure the server is running in one terminal (`python -m flask --app app run`) and run the following commands in a second terminal.
 
 ### Step 0 — Automated test suite
 
-Run the full test suite first. All 27 tests should pass.
+Run the full test suite first. All tests should pass.
 
 ```bash
 pytest -v
@@ -154,10 +155,10 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # 3. Initialize the database
-flask --app app init-db
+python -m flask --app app init-db
 
 # 4. (Optional) Seed with sample calibration data
-flask --app app seed-db
+python -m flask --app app seed-db
 ```
 
 ---
@@ -165,7 +166,7 @@ flask --app app seed-db
 ## Running
 
 ```bash
-flask --app app run
+python -m flask --app app run
 ```
 
 The server starts at `http://127.0.0.1:5000` and runs in the foreground. **Leave this terminal open** — open a second terminal to interact with the API.
@@ -213,7 +214,7 @@ The five endpoints correspond directly to the five use cases above. For day-to-d
 | `calibration_type` | Non-empty string |
 | `value` | Finite number (rejects `NaN`, `Infinity`, booleans) |
 | `username` | Non-empty string |
-| `tag` | Non-empty string; may not contain `/`. Normalized to lowercase, so tags are case-insensitive. |
+| `tag` | Non-empty string; any characters allowed. Normalized to lowercase, so tags are case-insensitive. |
 | `start` / `end` | ISO 8601 timestamp (see filter notes below) |
 
 Invalid input returns a `400` with a descriptive message.
@@ -335,10 +336,10 @@ Tag membership history is preserved via `time_added` / `time_removed` on `tags_c
 
 | Symptom | Fix |
 |--------|-----|
-| `Could not reach the server` | Start the server first: `flask --app app run` |
+| `Could not reach the server` | Start the server first: `python -m flask --app app run` |
 | `Could not reach the server` (server is running) | Use `127.0.0.1` instead of `localhost` — common on macOS |
 | `No module named 'flask'` | Activate the virtual environment: `source venv/bin/activate` |
-| `sqlite3.OperationalError: no such table` | Run `flask --app app init-db` |
+| `sqlite3.OperationalError: no such table` | Run `python -m flask --app app init-db` |
 
 ---
 
