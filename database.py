@@ -1,9 +1,10 @@
+import os
 import re
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 
-DATABASE = "calibrations.db"
+DATABASE = os.environ.get("CALIBRATION_DB", "calibrations.db")
 
 # SQLite stores integers as signed 64-bit; anything outside this range cannot
 # be a valid row id, so binding it would raise OverflowError.

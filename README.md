@@ -65,7 +65,7 @@ source venv/bin/activate
 python client.py list
 ```
 
-If the database is seeded, you should 15 calibrations. 
+If the database is seeded, you should see 15 calibrations.
 
 ---
 
@@ -78,7 +78,7 @@ This section walks through verifying all five use cases end to end. Make sure th
 Run the full test suite first. All tests should pass.
 
 ```bash
-pytest -v
+python -m pytest -v
 ```
 
 Tests run against a temporary, isolated database and do not affect your local data.
@@ -338,6 +338,7 @@ Tag membership history is preserved via `time_added` / `time_removed` on `tags_c
 |--------|-----|
 | `Could not reach the server` | Start the server first: `python -m flask --app app run` |
 | `Could not reach the server` (server is running) | Use `127.0.0.1` instead of `localhost` — common on macOS |
+| Server is on a different host or port | Set `CALIBRATION_API_URL=http://<host>:<port>` before running `client.py` |
 | `No module named 'flask'` | Activate the virtual environment: `source venv/bin/activate` |
 | `sqlite3.OperationalError: no such table` | Run `python -m flask --app app init-db` |
 
